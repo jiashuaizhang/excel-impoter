@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: eos-order-codebuy-sync
+  profiles:
+    active: local
+import:
+  excelPath: E:\\temp\\eos-order-codebuy-sync\\template1.xlsx
+  writeErrorFile:
+    enabled: true
+    analysisErrorFile: E:\\temp\\eos-order-codebuy-sync\\analysisError.txt
+    saveErrorFile: E:\\temp\\eos-order-codebuy-sync\\saveError.txt
+    noIndexFile: E:\\temp\\eos-order-codebuy-sync\\noIndex.txt
+    duplicateKeyFile: E:\\temp\\eos-order-codebuy-sync\\duplicateKey.txt

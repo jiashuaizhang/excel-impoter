@@ -1,0 +1,33 @@
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.unicom.eos.codebuyconfig.mapper: debug
+  file:  "eos/${spring.application.name}.log"
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecsorder?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  sleuth:
+    sampler:
+      percentage: 1.0
+  cloud:
+    stream:
+      kafka:
+        binder:
+          zkNodes: 10.191.129.54:2181
+          brokers: 10.191.129.54:9092
+  redis:
+    database: 0
+    password: redis123456
+    pool:
+      max-wait: 2000
+      max-active: 20
+    sentinel:
+      master: mymaster
+      nodes: 10.191.129.56:26380
+  http:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 50MB
