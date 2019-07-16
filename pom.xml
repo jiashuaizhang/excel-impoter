@@ -15,7 +15,7 @@
         <java.version>1.8</java.version>
     </properties>
 
-    <artifactId>excel-importer</artifactId>
+    <artifactId>eos-order-codebuy-sync</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -31,6 +31,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <!-- 添加 MyBatis -->
         <dependency>

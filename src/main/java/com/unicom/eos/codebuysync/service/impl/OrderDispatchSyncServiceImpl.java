@@ -1,29 +1,23 @@
 package com.unicom.eos.codebuysync.service.impl;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.google.common.io.FileWriteMode;
-import com.google.common.io.Files;
+import com.unicom.eos.codebuysync.cache.AreaCache;
 import com.unicom.eos.codebuysync.config.ErrorFileConfig;
 import com.unicom.eos.codebuysync.entity.Order;
+import com.unicom.eos.codebuysync.entity.OrderDispatch;
+import com.unicom.eos.codebuysync.entity.OrderIndex;
+import com.unicom.eos.codebuysync.mapper.OrderDispatchMapper;
+import com.unicom.eos.codebuysync.service.OrderDispatchSyncService;
 import com.unicom.eos.codebuysync.util.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.unicom.eos.codebuysync.cache.AreaCache;
-import com.unicom.eos.codebuysync.entity.OrderDispatch;
-import com.unicom.eos.codebuysync.entity.OrderIndex;
-import com.unicom.eos.codebuysync.mapper.OrderDispatchMapper;
-import com.unicom.eos.codebuysync.service.OrderDispatchSyncService;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zhangjiashuai
@@ -106,7 +100,8 @@ public class OrderDispatchSyncServiceImpl implements OrderDispatchSyncService {
             // 拼接地址
             String postAddrDetail = orderIndex.getPostAddr();
             orderDispatch.setPostAddrDetail(postAddrDetail);
-            String postAddr = new StringBuilder(provinceName.orElse(EMPTY)).append(cityName.orElse(EMPTY)).append(districtName.orElse(EMPTY)).append(postAddrDetail).toString();
+            String postAddr = new StringBuilder(provinceName.orElse(EMPTY)).append(cityName.orElse(EMPTY))
+                    .append(districtName.orElse(EMPTY)).append(Optional.ofNullable(postAddrDetail).orElse(EMPTY)).toString();
             orderDispatch.setPostAddr(postAddr);
             // 设置同步标识, 默认 未同步码上购
             orderDispatch.setSyncTag(0);

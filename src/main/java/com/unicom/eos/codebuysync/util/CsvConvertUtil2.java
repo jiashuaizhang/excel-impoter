@@ -2,7 +2,6 @@ package com.unicom.eos.codebuysync.util;
 
 import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
@@ -12,7 +11,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 /**
- * 转换CSV中换行导致的错误数据
+ * 从CSV中提取指定ID的行数据
  */
 @Slf4j
 public class CsvConvertUtil2 {
