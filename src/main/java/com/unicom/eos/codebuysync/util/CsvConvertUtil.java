@@ -3,6 +3,7 @@ package com.unicom.eos.codebuysync.util;
 import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.IOUtils;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 /**
@@ -25,11 +27,13 @@ public class CsvConvertUtil {
     private static final String CONTENT_SEPARATOR = " ";
     private static final Charset DEFAULT_CHARSET = Charset.forName("GB2312");
 
+    private static final int WRITE_FILE_NO = 5;
+
     private static final Pattern ORDERID_PATTERN = Pattern.compile("^[\\d]{16}$");
 
     public static void main(String[] args) throws IOException {
         String sourceFilePath = "E:\\temp\\eos-order-codebuy-sync\\意向单\\export.csv";
-        String targetFilePath = "E:\\temp\\eos-order-codebuy-sync\\意向单\\converted.csv";
+        String targetFilePath = "E:\\temp\\eos-order-codebuy-sync\\意向单\\converted_%d.csv";
         convert(sourceFilePath, targetFilePath);
     }
 
@@ -66,13 +70,40 @@ public class CsvConvertUtil {
         }
         sourceLines = null;
         log.info("解析和转换文件结束， 写文件开始");
-        File target = new File(targetFilePath);
-        try (BufferedWriter writer = Files.newWriter(target, DEFAULT_CHARSET)) {
-            for (String line : convertedLines) {
+        int totalLines = convertedLines.size();
+        int fileNum = WRITE_FILE_NO;
+        List<BufferedWriter> writerList = new ArrayList<>(fileNum);
+        String titleLine = convertedLines.get(0);
+        for (int i = 0; i < fileNum; i++) {
+            File target = new File(String.format(targetFilePath, i + 1));
+            BufferedWriter writer = Files.newWriter(target, DEFAULT_CHARSET);
+            writerList.add(writer);
+            writer.append(titleLine);
+            writer.newLine();
+        }
+        Random random = new Random();
+        try {
+            for (int i = 1; i < totalLines; i++) {
+                int index = random.nextInt(fileNum);
+                String line = convertedLines.get(i);
+                BufferedWriter writer = writerList.get(index);
                 writer.append(line);
                 writer.newLine();
             }
+        } catch (Exception e) {
+            log.error("写文件失败", e);
+        } finally {
+            for (BufferedWriter writer: writerList) {
+                IOUtils.closeQuietly(writer);
+            }
         }
+//        File target = new File(targetFilePath);
+//        try (BufferedWriter writer = Files.newWriter(target, DEFAULT_CHARSET)) {
+//            for (String line : convertedLines) {
+//                writer.append(line);
+//                writer.newLine();
+//            }
+//        }
         log.info("写文件结束");
     }
 
@@ -88,10 +119,9 @@ public class CsvConvertUtil {
 
     @Test
     public void simpleTest() {
-        System.out.println(isOrderId("7519070701755014"));
-        System.out.println(isOrderId("7319020539191483"));
-        System.out.println(isOrderId("6819032336052934"));
-        System.out.println(isOrderId("8619032547309648"));
-        System.out.println(isOrderId("1619051601547574"));
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(random.nextInt(3));
+        }
     }
 }

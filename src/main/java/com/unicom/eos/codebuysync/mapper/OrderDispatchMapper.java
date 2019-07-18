@@ -37,6 +37,17 @@ public interface OrderDispatchMapper {
     })
     OrderIndex findOrderIndexByOrderId(@Param("orderId") Long orderId,@Param("provinceCode") String provinceCode);
 
+    @Select("SELECT wideband_order_id,0 dn,0 log_dn,install_address,province_code,city_code from tf_b_order_wideband_info " +
+                    "where wideband_order_id = #{orderId}")
+    @Results({
+            @Result(column = "wideband_order_id", property = "orderId"),
+            @Result(column = "log_dn", property = "logDn"),
+            @Result(column = "install_address", property = "postAddr"),
+            @Result(column = "province_code", property = "provinceCode"),
+            @Result(column = "city_code", property = "cityCode"),
+    })
+    OrderIndex findWidebandInfo(@Param("orderId") Long orderId);
+
     /**
      * 意向单修改订单状态
      * mashanggou 码上购标记 0物流 1上门 2自提 3码上购智能派单

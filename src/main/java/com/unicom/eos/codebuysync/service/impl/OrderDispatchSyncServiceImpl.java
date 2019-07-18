@@ -45,6 +45,8 @@ public class OrderDispatchSyncServiceImpl implements OrderDispatchSyncService {
      */
     private static final String ORDER_STATE_CM = "CM";
 
+    private static final String DEFAULT_ADDRESS = "默认地址";
+
     @Override
     public void completeAndSave(OrderDispatch orderDispatch) {
         try {
@@ -54,22 +56,27 @@ public class OrderDispatchSyncServiceImpl implements OrderDispatchSyncService {
                 // 空行或错误数据
                 return;
             }
-            if (orderDispatch.getPoolTag() == null) {
-                // 通过判断这一后位非空字段是否存在，确定是否有换行导致的数据不完成
-                log.error("orderId:【】数据不完整，跳过");
-                return;
-            }
+//            if (orderDispatch.getPoolTag() == null) {
+//                // 通过判断这一后位非空字段是否存在，确定是否有换行导致的数据不完成
+//                log.error("orderId:【】数据不完整，跳过");
+//                return;
+//            }
             OrderIndex orderIndex = null;
             if (debugMode) {
                 orderIndex = new OrderIndex(1001, 10001);
+                orderIndex.setPostAddr(DEFAULT_ADDRESS);
             } else {
-                orderIndex = orderDispatchMapper.findOrderIndexByOrderId(orderId, orderDispatch.getOrderProvinceCode());
+                if(orderDispatch.getRsyncTag() != 0 && orderDispatch.getRsyncTag() == 3){
+                    //宽带订单
+                    orderIndex = orderDispatchMapper.findWidebandInfo(orderId);
+                } else {
+                    orderIndex = orderDispatchMapper.findOrderIndexByOrderId(orderId, orderDispatch.getOrderProvinceCode());
+                }
                 if (orderIndex == null) {
-                    log.error("orderId：【{}】无法查询到关联的orderIndex", orderId);
+                    log.error("orderId：【{}】无法查询到关联的orderIndex或widebandInfo", orderId);
                     if (ErrorFileConfig.enabled_) {
                         String path = ErrorFileConfig.noIndexFile_;
-                        String line = new StringBuilder("order_id = ").append(orderId).append(", and province_code")
-                                .append(orderDispatch.getOrderProvinceCode() == null ? " is null" : (" = " +orderDispatch.getOrderProvinceCode())).toString();
+                        String line = orderId.toString();
                         FileUtil.append(path, line);
                     }
                     return;
@@ -100,9 +107,14 @@ public class OrderDispatchSyncServiceImpl implements OrderDispatchSyncService {
             // 拼接地址
             String postAddrDetail = orderIndex.getPostAddr();
             orderDispatch.setPostAddrDetail(postAddrDetail);
-            String postAddr = new StringBuilder(provinceName.orElse(EMPTY)).append(cityName.orElse(EMPTY))
-                    .append(districtName.orElse(EMPTY)).append(Optional.ofNullable(postAddrDetail).orElse(EMPTY)).toString();
-            orderDispatch.setPostAddr(postAddr);
+            if(orderDispatch.getRsyncTag() != 0 && orderDispatch.getRsyncTag() == 3){
+                //宽带订单
+                orderDispatch.setPostAddr(postAddrDetail);
+            } else {
+                String postAddr = new StringBuilder(provinceName.orElse(EMPTY)).append(cityName.orElse(EMPTY))
+                        .append(districtName.orElse(EMPTY)).append(Optional.ofNullable(postAddrDetail).orElse(EMPTY)).toString();
+                orderDispatch.setPostAddr(postAddr);
+            }
             // 设置同步标识, 默认 未同步码上购
             orderDispatch.setSyncTag(0);
             // 派送状态: 1首次派单，2  再次派单,默认首次派送
@@ -126,7 +138,7 @@ public class OrderDispatchSyncServiceImpl implements OrderDispatchSyncService {
                 FileUtil.append(path, line);
             }
         } catch (Exception e) {
-            log.error(String.format("数据：【%d】保存失败", orderDispatch.toString()), e);
+            log.error(String.format("数据保存失败：【%s】", orderDispatch.toString()), e);
             if (ErrorFileConfig.enabled_) {
                 String path = ErrorFileConfig.saveErrorFile_;
                 String line = orderDispatch.getOrderId().toString();

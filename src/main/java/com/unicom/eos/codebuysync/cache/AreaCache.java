@@ -1,17 +1,15 @@
 package com.unicom.eos.codebuysync.cache;
 
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.unicom.eos.codebuysync.mapper.AreaMapper;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 省市县信息缓存
@@ -52,6 +50,9 @@ public class AreaCache {
         });
     
     public Optional<String> findDistrictNameByDistrictCode(String districtCode) {
+        if(districtCode == null){
+            return Optional.empty();
+        }
         try {
             return Optional.of(DISTRICT_NAME_CACHE.get(districtCode));
         } catch (Exception e) {
@@ -61,6 +62,9 @@ public class AreaCache {
     }
     
     public Optional<String> findCityNameByCityCode(String cityCode) {
+        if(cityCode == null){
+            return Optional.empty();
+        }
         try {
             return Optional.of(CITY_NAME_CACHE.get(cityCode));
         } catch (Exception e) {
@@ -70,6 +74,9 @@ public class AreaCache {
     }
     
     public Optional<String> findProvinceNameByProvinceCode(String provinceCode) {
+        if(provinceCode == null){
+            return Optional.empty();
+        }
         try {
             return Optional.of(PROVINCE_NAME_CACHE.get(provinceCode));
         } catch (Exception e) {
